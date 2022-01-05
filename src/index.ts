@@ -6,10 +6,14 @@ import prisma from '@/infrastructure/config/prisma.config';
 import validateEnv from './utils/validateEnv';
 import * as util from 'util';
 import UserController from '@/application/controllers/user/user.controller';
+import PostController from '@/application/controllers/post/post.controller';
 
 validateEnv();
 
-const app = new App([new UserController()], Number(process.env.PORT));
+const app = new App(
+    [new UserController(), new PostController()],
+    Number(process.env.PORT)
+);
 
 app.listen();
 

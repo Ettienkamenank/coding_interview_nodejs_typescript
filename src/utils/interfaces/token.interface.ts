@@ -1,5 +1,5 @@
 interface Token {
-    username: string;
+    id: string;
     expiresIn: number;
 }
 

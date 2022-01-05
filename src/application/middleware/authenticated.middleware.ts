@@ -28,7 +28,8 @@ async function authenticatedMiddleware(
         }
 
         const user = await prisma.user.findUnique({
-            where: { username: payload.username },
+            where: { username: payload.id },
+            select: { id: true, email: true, username: true, name: true },
         });
 
         if (!user) {
@@ -38,8 +39,8 @@ async function authenticatedMiddleware(
         req.user = user;
         return next();
     } catch (error) {
-        return next(error);
-        // return next(new HttpException(401, 'Unauthorized, error'));
+        // return next(error);
+        return next(new HttpException(401, 'Unauthorized, error'));
     }
 }
 

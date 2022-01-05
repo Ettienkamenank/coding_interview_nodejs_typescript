@@ -1,10 +1,15 @@
 import jwt from 'jsonwebtoken';
 import Token from '@/utils/interfaces/token.interface';
+import { User } from '@prisma/client';
 
-export const createToken = (username: string): string => {
-    return jwt.sign({ id: username }, process.env.JWT_SECRET as jwt.Secret, {
-        expiresIn: '1d',
-    });
+export const createToken = (user: User): string => {
+    return jwt.sign(
+        { id: user.username },
+        process.env.JWT_SECRET as jwt.Secret,
+        {
+            expiresIn: '1d',
+        }
+    );
 };
 
 export const verifyToken = async (

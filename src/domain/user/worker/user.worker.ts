@@ -20,7 +20,7 @@ class UserWorker {
                 data: { name, email, username, password },
             });
 
-            const accessToken = token.createToken(user.id.toString());
+            const accessToken = token.createToken(user);
 
             return accessToken;
         } catch (err) {
@@ -42,15 +42,15 @@ class UserWorker {
 
             if (user) {
                 if (await this.isValidPassword(password, user.password!)) {
-                    return token.createToken(user.id.toString());
+                    return token.createToken(user);
                 } else {
                     throw new Error('Wrong credentials given');
                 }
             } else {
                 throw new Error('Unable to find user with that email address');
             }
-        } catch (err) {
-            throw new Error('Unable to login user');
+        } catch (err: any) {
+            throw new Error(err);
         }
     }
 
