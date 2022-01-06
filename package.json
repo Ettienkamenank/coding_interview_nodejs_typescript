@@ -10,6 +10,9 @@
         "start": "node dist/index.js",
         "postinstall": "npm run build"
     },
+    "prisma": {
+        "seed": "ts-node prisma/seed.ts"
+    },
     "repository": {
         "type": "git",
         "url": "git+ssh://git@github.com/Ettienkamenank/coding_interview_nodejs_typescript.git"
@@ -52,6 +55,7 @@
         "eslint-plugin-prettier": "^4.0.0",
         "prettier": "^2.5.1",
         "prisma": "^3.7.0",
+        "ts-node": "^10.4.0",
         "tsc-watch": "^4.6.0",
         "typescript": "^4.5.4"
     },

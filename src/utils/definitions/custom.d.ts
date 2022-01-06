@@ -2,9 +2,11 @@ import { PrismaClient } from '@prisma/client';
 
 type User = {
     id: number;
-    email: string;
+    lastName: string | null;
+    firstName: string | null;
     username: string;
-    name: string | null;
+    email: string;
+    roleId: number | null;
 };
 
 declare global {

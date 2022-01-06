@@ -4,7 +4,10 @@ import HttpException from '@/utils/exceptions/http.exception';
 import validationMiddleware from '@/application/middleware/validation.middleware';
 import authenticatedMiddleware from '@/application/middleware/authenticated.middleware';
 import UserWorker from '@/domain/user/worker/user.worker';
+import RoleWorker from '@/domain/user/worker/role.worker';
+import { User } from '@/domain/user/model/user.model';
 import validate from './user.validation';
+import { Role, RoleType } from '@/domain/user/model/role.model';
 
 class UserController implements Controller {
     constructor() {
@@ -14,6 +17,7 @@ class UserController implements Controller {
     public path = '/users';
     public router = Router();
     private userWorker = new UserWorker();
+    private roleWorker = new RoleWorker();
 
     private initializeRoutes(): void {
         this.router.post(
@@ -37,16 +41,20 @@ class UserController implements Controller {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const { name, email, username, password } = req.body;
+            let role: Role | Error;
+            let user: User = req.body;
 
-            const token = await this.userWorker.register(
-                name,
-                email,
-                username,
-                password
-            );
+            role = await this.roleWorker.findRoleByName(RoleType.USER);
 
-            res.status(201).json({ token });
+            if (role instanceof Error) {
+                next(new HttpException(400, role.message));
+            } else {
+                user.roleId = role.id;
+
+                const token = await this.userWorker.createUser(user);
+
+                res.status(201).json({ token });
+            }
         } catch (err: any) {
             next(new HttpException(400, err.message));
         }
@@ -60,7 +68,10 @@ class UserController implements Controller {
         try {
             const { email, password } = req.body;
 
-            const token = await this.userWorker.login(email, password);
+            const token = await this.userWorker.authenticateUser(
+                email,
+                password
+            );
 
             res.status(200).json({ token });
         } catch (err: any) {

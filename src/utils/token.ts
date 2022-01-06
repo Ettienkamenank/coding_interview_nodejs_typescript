@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import Token from '@/utils/interfaces/token.interface';
-import { User } from '@prisma/client';
+import { User } from '@/domain/user/model/user.model';
 
 export const createToken = (user: User): string => {
     return jwt.sign(
