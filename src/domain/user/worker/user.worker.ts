@@ -1,7 +1,7 @@
 import prisma from '@/infrastructure/config/prisma.config';
 import UserDomain from '@/domain/user/port/user.domain';
 import { User, UserDto } from '@/domain/user/model/user.model';
-import token from '@/utils/token';
+import token from '@/utils/resolver/token';
 import bcrypt from 'bcrypt';
 
 class UserWorker implements UserDomain {

@@ -11,6 +11,7 @@ function validateEnv(): void {
         DB_HOST: str({ default: 'localhost' }),
         DB_PORT: port({ default: 5432 }),
         DB_NAME: str({ default: 'prismadb' }),
+        APP_SECRET: str(),
         JWT_SECRET: str(),
     });
 }

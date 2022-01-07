@@ -28,4 +28,16 @@ export const verifyToken = async (
     });
 };
 
-export default { createToken, verifyToken };
+export const verifyAppSecret = async (
+    token: string
+): Promise<Error | boolean> => {
+    return new Promise((resolve, reject) => {
+        if (token === process.env.APP_SECRET) {
+            return resolve(true);
+        } else {
+            return reject(new Error('Wrong token'));
+        }
+    });
+};
+
+export default { createToken, verifyToken, verifyAppSecret };

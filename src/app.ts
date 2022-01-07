@@ -2,22 +2,27 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import compression from 'compression';
 import cors from 'cors';
 import morgan from 'morgan';
-import Controller from '@/utils/interfaces/controller.interface';
+import RestController from '@/utils/interfaces/rest.controller.interface';
 import ErrorMiddleware from '@/application/middleware/error.middleware';
 import helmet from 'helmet';
 
+interface NamedParameters {
+    restControllers: RestController[];
+    port: number;
+}
+
 class App {
-    constructor(controllers: Controller[], port: number) {
-        this.express = express();
+    constructor({ restControllers, port }: NamedParameters) {
+        this.app = express();
         this.port = port;
 
         // this.initializeDatabaseConnection();
         this.initializeMiddleware();
-        this.initializeControllers(controllers);
+        this.initializeRestControllers(restControllers);
         this.initializeErrorHandling();
     }
 
-    public express: Application;
+    public app: Application;
     public port: number;
 
     // private initializeDatabaseConnection(): void {
@@ -33,29 +38,29 @@ class App {
     // }
 
     private initializeMiddleware(): void {
-        this.express.use(helmet());
-        this.express.use(cors());
-        this.express.use(morgan('dev'));
-        this.express.use(express.json());
-        this.express.use(express.urlencoded({ extended: false }));
-        this.express.use(compression());
+        this.app.use(helmet());
+        this.app.use(cors());
+        this.app.use(morgan('dev'));
+        this.app.use(express.json());
+        this.app.use(express.urlencoded({ extended: false }));
+        this.app.use(compression());
     }
 
-    private initializeControllers(controllers: Controller[]): void {
-        controllers.forEach((controller: Controller) => {
-            this.express.use('/api/v1', controller.router);
+    private initializeRestControllers(restControllers: RestController[]): void {
+        restControllers.forEach((restController: RestController) => {
+            this.app.use('/api/v1', restController.router);
         });
     }
 
     private initializeErrorHandling(): void {
-        this.express.use(ErrorMiddleware);
+        this.app.use(ErrorMiddleware);
     }
 
     /**
      * listen
      */
     public listen(): void {
-        this.express.listen(this.port, () => {
+        this.app.listen(this.port, () => {
             console.log(`App listening on port ${this.port}`);
         });
     }

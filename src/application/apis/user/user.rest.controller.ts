@@ -1,15 +1,18 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import Controller from '@/utils/interfaces/controller.interface';
+import RestController from '@/utils/interfaces/rest.controller.interface';
 import HttpException from '@/utils/exceptions/http.exception';
 import validationMiddleware from '@/application/middleware/validation.middleware';
-import authenticatedMiddleware from '@/application/middleware/authenticated.middleware';
+import {
+    authenticatedMiddleware,
+    unauthenticatedMiddleware,
+} from '@/application/middleware/authentication.middleware';
 import UserWorker from '@/domain/user/worker/user.worker';
 import RoleWorker from '@/domain/user/worker/role.worker';
 import { User } from '@/domain/user/model/user.model';
-import validate from './user.validation';
 import { Role, RoleType } from '@/domain/user/model/role.model';
+import validate from './user.validation';
 
-class UserController implements Controller {
+class UserRestController implements RestController {
     constructor() {
         this.initializeRoutes();
     }
@@ -23,12 +26,14 @@ class UserController implements Controller {
         this.router.post(
             `${this.path}/register`,
             validationMiddleware(validate.register),
+            unauthenticatedMiddleware,
             this.register
         );
 
         this.router.post(
             `${this.path}/login`,
             validationMiddleware(validate.login),
+            unauthenticatedMiddleware,
             this.login
         );
 
@@ -41,13 +46,48 @@ class UserController implements Controller {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            let role: Role | Error;
             let user: User = req.body;
 
+            /**
+             * Check email uniqueness
+             */
+            let isEmailTaken: Boolean | Error =
+                await this.userWorker.isEmailAlreadyTaken(user.email);
+
+            if (isEmailTaken instanceof Error) {
+                return next(new HttpException(400, isEmailTaken.message));
+            } else {
+                if (isEmailTaken) {
+                    return next(
+                        new HttpException(400, 'Email address already used')
+                    );
+                }
+            }
+
+            /**
+             * Check username uniqueness
+             */
+            let isUsernameTaken: Boolean | Error =
+                await this.userWorker.isUsernameAlreadyTaken(user.username);
+
+            if (isUsernameTaken instanceof Error) {
+                return next(new HttpException(400, isUsernameTaken.message));
+            } else {
+                if (isUsernameTaken) {
+                    return next(
+                        new HttpException(400, 'Username already used')
+                    );
+                }
+            }
+
+            /**
+             * Try to save user
+             */
+            let role: Role | Error;
             role = await this.roleWorker.findRoleByName(RoleType.USER);
 
             if (role instanceof Error) {
-                next(new HttpException(400, role.message));
+                return next(new HttpException(400, role.message));
             } else {
                 user.roleId = role.id;
 
@@ -66,10 +106,10 @@ class UserController implements Controller {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const { email, password } = req.body;
+            const { username, password } = req.body;
 
             const token = await this.userWorker.authenticateUser(
-                email,
+                username,
                 password
             );
 
@@ -92,4 +132,4 @@ class UserController implements Controller {
     };
 }
 
-export default UserController;
+export default UserRestController;

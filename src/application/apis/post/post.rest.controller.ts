@@ -1,12 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import Controller from '@/utils/interfaces/controller.interface';
+import RestController from '@/utils/interfaces/rest.controller.interface';
 import HttpException from '@/utils/exceptions/http.exception';
 import validationMiddleware from '@/application/middleware/validation.middleware';
-import authenticatedMiddleware from '@/application/middleware/authenticated.middleware';
+import { authenticatedMiddleware } from '@/application/middleware/authentication.middleware';
 import PostWorker from '@/domain/post/worker/post.worker';
 import validate from './post.validation';
 
-class PostController implements Controller {
+class PostRestController implements RestController {
     constructor() {
         this.initializeRoutes();
     }
@@ -124,4 +124,4 @@ class PostController implements Controller {
     };
 }
 
-export default PostController;
+export default PostRestController;

@@ -55,9 +55,15 @@ const register = Joi.object({
 });
 
 const login = Joi.object({
-    email: Joi.string().email().required(),
+    username: Joi.string().required().messages({
+        'string.empty': `username cannot be an empty field`,
+        'any.required': `username is a required field`,
+    }),
 
-    password: Joi.string().required(),
+    password: Joi.string().required().messages({
+        'string.empty': `password cannot be an empty field`,
+        'any.required': `password is a required field`,
+    }),
 });
 
 export default { register, login };

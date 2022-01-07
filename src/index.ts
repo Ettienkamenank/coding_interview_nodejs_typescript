@@ -1,19 +1,19 @@
 import 'reflect-metadata';
 import 'dotenv/config';
 import 'module-alias/register';
-import App from './app';
-import prisma from '@/infrastructure/config/prisma.config';
-import validateEnv from './utils/validateEnv';
 import * as util from 'util';
-import UserController from '@/application/controllers/user/user.controller';
-import PostController from '@/application/controllers/post/post.controller';
+import validateEnv from './utils/validateEnv';
+import App from './app';
+import UserRestController from '@/application/apis/user/user.rest.controller';
+import PostRestController from '@/application/apis/post/post.rest.controller';
+import prisma from '@/infrastructure/config/prisma.config';
 
 validateEnv();
 
-const app = new App(
-    [new UserController(), new PostController()],
-    Number(process.env.PORT)
-);
+const app = new App({
+    restControllers: [new UserRestController(), new PostRestController()],
+    port: Number(process.env.PORT),
+});
 
 app.listen();
 
